@@ -35,18 +35,22 @@ namespace ClipboardHistoryMini
         /// </summary>
         private void InitializeComponent()
         {
-            //this.components = new System.ComponentModel.Container();
-            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            //this.ClientSize = new System.Drawing.Size(800, 450);
-            //this.Text = "Form1";
-
-            this.Text = "Clipboard History Mini";
-            this.Size = new Size(600, 500);
-            this.MinimumSize = new Size(400, 300);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Icon = SystemIcons.Application;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            SuspendLayout();
+            // 
+            // MainForm
+            // 
+            ClientSize = new Size(584, 461);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MinimumSize = new Size(400, 300);
+            Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Clipboard History Mini";
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private Panel mainPanel;
     }
 }

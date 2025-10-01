@@ -26,6 +26,9 @@ namespace ClipboardHistoryMini
             SetupUI();
             SetupTrayIcon();
             LoadHistory();
+
+            // Add sample data
+            LoadSampleData();
         }
 
         //private void InitializeComponent()
@@ -54,148 +57,217 @@ namespace ClipboardHistoryMini
             _hotkeyManager.RegisterHotkey(Keys.V, ctrl: true, shift: true);
         }
 
+
+
         private void SetupUI()
         {
-            // Main panel
-            var mainPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(10)
-            };
-            this.Controls.Add(mainPanel);
+            this.SuspendLayout();
+            this.Controls.Clear();
 
-            // Top toolbar
-            var toolbar = new Panel
+            // Create all panels first
+            var topToolbar = new Panel
             {
-                Dock = DockStyle.Top,
+                Name = "topToolbar",
                 Height = 40,
-                Padding = new Padding(0, 0, 0, 10)
+                Dock = DockStyle.Top,
+                Padding = new Padding(10, 5, 10, 5),
+                BackColor = Color.FromArgb(240, 240, 240)
             };
-            mainPanel.Controls.Add(toolbar);
 
-            // Search box
-            _searchBox = new TextBox
+            var bottomToolbar = new Panel
             {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10F),
-                PlaceholderText = "Search clipboard history..."
+                Name = "bottomToolbar",
+                Height = 40,
+                Dock = DockStyle.Bottom,
+                Padding = new Padding(10, 5, 10, 5),
+                BackColor = Color.FromArgb(240, 240, 240)
             };
-            _searchBox.TextChanged += SearchBox_TextChanged;
-            toolbar.Controls.Add(_searchBox);
 
-            // Filter buttons panel
-            var filterPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Right,
-                Width = 200,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                Padding = new Padding(5, 0, 0, 0)
-            };
-            toolbar.Controls.Add(filterPanel);
-
-            var btnAll = new Button { Text = "All", Width = 60, Height = 30 };
-            btnAll.Click += (s, e) => FilterHistory(null);
-            filterPanel.Controls.Add(btnAll);
-
-            var btnText = new Button { Text = "Text", Width = 60, Height = 30 };
-            btnText.Click += (s, e) => FilterHistory(ClipboardItemType.Text);
-            filterPanel.Controls.Add(btnText);
-
-            var btnImages = new Button { Text = "Images", Width = 70, Height = 30 };
-            btnImages.Click += (s, e) => FilterHistory(ClipboardItemType.Image);
-            filterPanel.Controls.Add(btnImages);
-
-            // History ListView
             _historyList = new ListView
             {
+                Name = "historyList",
                 Dock = DockStyle.Fill,
                 View = View.Details,
                 FullRowSelect = true,
                 GridLines = true,
                 Font = new Font("Segoe UI", 9F),
-                MultiSelect = false
+                MultiSelect = false,
+                HeaderStyle = ColumnHeaderStyle.Clickable,
+                BorderStyle = BorderStyle.FixedSingle,
+                ShowGroups = false,
+                BackColor = Color.White
             };
 
+            // CRITICAL: Add controls in this specific order
+            //this.Controls.Add(bottomToolbar);  // Bottom first
+            //this.Controls.Add(topToolbar);     // Top second  
+            //this.Controls.Add(_historyList);   // Fill last
+
+            this.Controls.Add(_historyList);   // Fill first
+            this.Controls.Add(topToolbar);     // Top second  
+            this.Controls.Add(bottomToolbar);  // Bottom last
+
+            // Setup ListView columns
             _historyList.Columns.Add("Type", 60);
-            _historyList.Columns.Add("Preview", 400);
+            _historyList.Columns.Add("Content", 300);
             _historyList.Columns.Add("Time", 120);
-            _historyList.Columns.Add("", 30); // Pin indicator
+            _historyList.Columns.Add("Pin", 40);
 
-            _historyList.DoubleClick += HistoryList_DoubleClick;
-            _historyList.KeyDown += HistoryList_KeyDown;
-            mainPanel.Controls.Add(_historyList);
+            // Setup toolbars
+            SetupTopToolbar(topToolbar);
+            SetupBottomToolbar(bottomToolbar);
 
-            // Context menu for list items
+            // Context menu
             _itemContextMenu = new ContextMenuStrip();
             _itemContextMenu.Items.Add("Copy", null, ContextMenu_Copy);
             _itemContextMenu.Items.Add("Pin/Unpin", null, ContextMenu_TogglePin);
             _itemContextMenu.Items.Add("Delete", null, ContextMenu_Delete);
             _historyList.ContextMenuStrip = _itemContextMenu;
 
-            // Bottom toolbar
-            var bottomToolbar = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 40,
-                Padding = new Padding(0, 10, 0, 0)
-            };
-            mainPanel.Controls.Add(bottomToolbar);
+            // Event handlers
+            _historyList.DoubleClick += HistoryList_DoubleClick;
+            _historyList.KeyDown += HistoryList_KeyDown;
 
-            var btnSettings = new Button
-            {
-                Text = "Settings",
-                Dock = DockStyle.Left,
-                Width = 80
-            };
-            btnSettings.Click += BtnSettings_Click;
-            bottomToolbar.Controls.Add(btnSettings);
+            this.ResumeLayout(true);
+        }
 
-            var btnStats = new Button
+
+        private void SetupTopToolbar(Panel topToolbar)
+        {
+            var btnAll = new Button
             {
-                Text = "Stats",
-                Dock = DockStyle.Left,
-                Width = 70
+                Text = "All",
+                Width = 60,
+                Height = 28,
+                Location = new Point(5, 6),
+                BackColor = SystemColors.ButtonHighlight,
+                FlatStyle = FlatStyle.System
             };
-            //btnStats.Click += BtnStats_Click;
-            bottomToolbar.Controls.Add(btnStats);
+            btnAll.Click += (s, e) => FilterHistory(null);
+            topToolbar.Controls.Add(btnAll);
+
+            var btnText = new Button
+            {
+                Text = "Text",
+                Width = 60,
+                Height = 28,
+                Location = new Point(75, 6),
+                BackColor = SystemColors.Control,
+                FlatStyle = FlatStyle.System
+            };
+            btnText.Click += (s, e) => FilterHistory(ClipboardItemType.Text);
+            topToolbar.Controls.Add(btnText);
+
+            var btnImages = new Button
+            {
+                Text = "Images",
+                Width = 70,
+                Height = 28,
+                Location = new Point(145, 6),
+                BackColor = SystemColors.Control,
+                FlatStyle = FlatStyle.System
+            };
+            btnImages.Click += (s, e) => FilterHistory(ClipboardItemType.Image);
+            topToolbar.Controls.Add(btnImages);
+
+            _searchBox = new TextBox
+            {
+                Height = 23,
+                Location = new Point(225, 8),
+                Width = 200,
+                Font = new Font("Segoe UI", 9F),
+                PlaceholderText = "Search clipboard history..."
+            };
+            _searchBox.TextChanged += SearchBox_TextChanged;
+            topToolbar.Controls.Add(_searchBox);
+
+            topToolbar.Resize += (s, e) => {
+                if (_searchBox != null)
+                {
+                    _searchBox.Width = Math.Max(150, topToolbar.Width - 240);
+                }
+            };
+        }
+
+        private void SetupBottomToolbar(Panel bottomToolbar)
+        {
+            var btnImport = new Button
+            {
+                Text = "Import",
+                Width = 70,
+                Height = 28,
+                Location = new Point(5, 6),
+                FlatStyle = FlatStyle.System
+            };
+            bottomToolbar.Controls.Add(btnImport);
 
             var btnExport = new Button
             {
                 Text = "Export",
-                Dock = DockStyle.Left,
-                Width = 70
+                Width = 70,
+                Height = 28,
+                Location = new Point(85, 6),
+                FlatStyle = FlatStyle.System
             };
-            //btnExport.Click += BtnExport_Click;
             bottomToolbar.Controls.Add(btnExport);
 
-            var btnImport = new Button
+            var btnStats = new Button
             {
-                Text = "Import",
-                Dock = DockStyle.Left,
-                Width = 70
+                Text = "Stats",
+                Width = 70,
+                Height = 28,
+                Location = new Point(165, 6),
+                FlatStyle = FlatStyle.System,
             };
-            //btnImport.Click += BtnImport_Click;
-            bottomToolbar.Controls.Add(btnImport);
+            bottomToolbar.Controls.Add(btnStats);
+            btnStats.Click += BtnStats_Click;
+
+            var btnSettings = new Button
+            {
+                Text = "Settings",
+                Width = 80,
+                Height = 28,
+                Location = new Point(245, 6),
+                FlatStyle = FlatStyle.System
+            };
+            btnSettings.Click += BtnSettings_Click;
+            bottomToolbar.Controls.Add(btnSettings);
+
+            var lblCount = new Label
+            {
+                Name = "lblCount",
+                Text = "4 items",
+                TextAlign = ContentAlignment.MiddleCenter,
+                Width = 80,
+                Height = 28,
+                Location = new Point(350, 6),
+                Font = new Font("Segoe UI", 9F)
+            };
+            bottomToolbar.Controls.Add(lblCount);
 
             var btnClear = new Button
             {
                 Text = "Clear History",
-                Dock = DockStyle.Right,
-                Width = 100
+                Width = 100,
+                Height = 28,
+                Location = new Point(450, 6),
+                FlatStyle = FlatStyle.System
             };
             btnClear.Click += BtnClear_Click;
             bottomToolbar.Controls.Add(btnClear);
 
-            var lblCount = new Label
-            {
-                Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Text = "0 items"
+            bottomToolbar.Resize += (s, e) => {
+                if (lblCount != null && btnClear != null)
+                {
+                    btnClear.Location = new Point(bottomToolbar.Width - 110, 6);
+                    lblCount.Location = new Point(bottomToolbar.Width - 200, 6);
+                }
             };
-            lblCount.Name = "lblCount";
-            bottomToolbar.Controls.Add(lblCount);
         }
+
+
+
+
 
         private void SetupTrayIcon()
         {
@@ -455,16 +527,78 @@ namespace ClipboardHistoryMini
             base.OnFormClosing(e);
         }
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        _monitor?.Dispose();
-        //        _trayIcon?.Dispose();
-        //        _searchDebounceTimer?.Dispose();
-        //        _hotkeyManager?.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
+        private void BtnStats_Click(object sender, EventArgs e)
+        {
+            var items = _storage.GetHistory();
+            int total = items.Count();
+            int pinned = items.Count(i => i.IsPinned);
+            int textItems = items.Count(i => i.Type == ClipboardItemType.Text);
+            int imageItems = items.Count(i => i.Type == ClipboardItemType.Image);
+            int richTextItems = items.Count(i => i.Type == ClipboardItemType.RichText);
+
+            var mostRecent = items.OrderByDescending(i => i.CopiedAt).FirstOrDefault();
+
+            string stats =
+                $"Clipboard Stats:\n\n" +
+                $"Total items: {total}\n" +
+                $"Pinned items: {pinned}\n" +
+                $"Text items: {textItems}\n" +
+                $"Image items: {imageItems}\n" +
+                $"RichText items: {richTextItems}\n" +
+                (mostRecent != null ? $"Most recent: {mostRecent.CopiedAt:MM/dd HH:mm}" : "");
+
+            MessageBox.Show(stats, "Clipboard Statistics", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void LoadSampleData()
+        {
+            // Clear existing items
+            _historyList.Items.Clear();
+
+            // Add some sample clipboard items
+            var items = new[]
+            {
+                new { Type = "Text", Content = "Hello, this is a sample text from clipboard", Time = DateTime.Now.AddMinutes(-5), Pinned = false },
+                new { Type = "Text", Content = "https://github.com/user/repository", Time = DateTime.Now.AddMinutes(-10), Pinned = true },
+                new { Type = "Image", Content = "Screenshot_2024.png (1920x1080)", Time = DateTime.Now.AddMinutes(-15), Pinned = false },
+                new { Type = "Text", Content = "public class ClipboardManager { }", Time = DateTime.Now.AddMinutes(-20), Pinned = false },
+                new { Type = "Text", Content = "Meeting notes: Discuss project timeline...", Time = DateTime.Now.AddMinutes(-25), Pinned = true },
+                new { Type = "Image", Content = "diagram.jpg (800x600)", Time = DateTime.Now.AddMinutes(-30), Pinned = false }
+            };
+
+            foreach (var item in items)
+            {
+                var listItem = new ListViewItem(item.Type);
+                listItem.SubItems.Add(item.Content.Length > 50 ? item.Content.Substring(0, 47) + "..." : item.Content);
+                listItem.SubItems.Add(item.Time.ToString("HH:mm:ss"));
+                listItem.SubItems.Add(item.Pinned ? "📌" : "");
+
+                // Set different icons/colors for different types
+                if (item.Type == "Image")
+                {
+                    listItem.BackColor = Color.FromArgb(240, 248, 255); // Light blue for images
+                }
+                else if (item.Pinned)
+                {
+                    listItem.BackColor = Color.FromArgb(255, 255, 240); // Light yellow for pinned items
+                }
+
+                listItem.Tag = item; // Store the original data
+                _historyList.Items.Add(listItem);
+            }
+
+            // Update the count label
+            UpdateItemCount();
+        }
+
+        private void UpdateItemCountOLD()
+        {
+            var countLabel = this.Controls.Find("lblCount", true).FirstOrDefault() as Label;
+            if (countLabel != null)
+            {
+                countLabel.Text = $"{_historyList.Items.Count} items";
+            }
+        }
+
     }
 }
