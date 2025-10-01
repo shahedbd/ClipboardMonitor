@@ -1,0 +1,57 @@
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace ClipboardHistoryMini
+{
+    partial class StatisticsForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            //this.components = new System.ComponentModel.Container();
+            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            //this.ClientSize = new System.Drawing.Size(800, 450);
+            //this.Text = "StatisticsForm";
+
+            this.Text = "Clipboard Statistics";
+            this.Size = new Size(600, 500);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+
+            _statsPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(20),
+                AutoScroll = true
+            };
+            this.Controls.Add(_statsPanel);
+        }
+
+        #endregion
+    }
+}
