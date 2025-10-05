@@ -250,12 +250,9 @@ namespace ClipboardHistoryMini
         }
 
 
-
-
-
         private void SetupTrayIcon()
         {
-            var iconPath = Path.Combine(Application.StartupPath, "Resources", "favicon.ico");
+            var iconPath = Path.Combine(Application.StartupPath, "Resources", "final2.ico");
             _trayIcon = new NotifyIcon
             {
                 //Icon = SystemIcons.Application,
@@ -416,7 +413,7 @@ namespace ClipboardHistoryMini
         private void UpdateTrayIconForBalloon()
         {
             // Set custom icon for balloon window
-            var iconPath = Path.Combine(Application.StartupPath, "Resources", "favicon.ico");
+            var iconPath = Path.Combine(Application.StartupPath, "Resources", "final.ico");
             if (File.Exists(iconPath))
             {
                 _trayIcon.Icon?.Dispose(); // Dispose old icon

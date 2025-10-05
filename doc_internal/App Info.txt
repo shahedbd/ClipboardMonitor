@@ -1,0 +1,109 @@
+ref: https://chatgpt.com/c/68dc3a90-250c-832e-8891-5c9a5ec7b60c
+App Name: Clipboard History Mini
+
+
+🟡 Short description
+
+A lightweight clipboard manager for Windows — quickly access, search, and reuse your recent copied texts and images.
+
+
+🟨 Description
+
+Clipboard History Mini is a fast, lightweight Windows app that automatically saves everything you copy — from text to images — and lets you instantly reuse them.
+Perfect for developers, writers, designers, and anyone who copies and pastes all day.
+
+With a simple, minimal design and system tray access, Clipboard History Mini keeps your workflow smooth and efficient.
+You can pin your favorite snippets, search instantly, and restore any copied item with just a click. All data stays local — nothing is ever sent to the cloud.
+
+Key Highlights
+
+View your clipboard history in one clean, scrollable list.
+
+Copy back any previous text or image instantly.
+
+Pin important items so they’re never lost.
+
+Search and filter by keyword or content type.
+
+Option to launch on Windows startup for instant availability.
+
+100% offline — privacy-first design.
+
+Clipboard History Mini runs quietly in the background, using minimal memory and CPU, giving you the clipboard superpower you didn’t know you needed.
+
+
+
+🟢 What’s new in this version (v1.0.0)
+
+Initial release of Clipboard History Mini 🎉
+
+Added real-time clipboard tracking for text and images.
+
+New system tray menu with quick access and hotkey support.
+
+Search, pin, and delete features for easy organization.
+
+Settings panel for max history size, startup options, and privacy controls.
+
+
+
+🧩 Product features
+Clipboard History Tracking: Automatically stores recent copied text, RTF, and images.
+
+Quick Restore: Reuse any previous clipboard item with one click.
+
+Smart Search & Filters: Instantly find past items by keyword or content type.
+
+Pinned Entries: Keep important snippets always accessible.
+
+Privacy Focused: All clipboard data is stored locally; no internet or cloud required.
+
+Hotkey Access: Open history window anytime with customizable shortcut.
+
+Compact Design: Minimal UI with system tray integration for effortless use.
+
+
+
+
+📄 Additional License Terms — Clipboard History Mini
+
+Developed By: Zero Byte
+Website: https://zerobytebd.com/
+
+Email: shahedbddev@gmail.com
+
+1. License Grant
+Clipboard History Mini (“the Software”) is licensed, not sold.
+You are granted a non-exclusive, non-transferable, limited license to install and use the Software on your personal or work Windows device(s) for productivity purposes, subject to these terms.
+
+2. Ownership
+All rights, title, and interest in and to the Software remain the property of Zero Byte.
+You may not modify, reverse engineer, decompile, distribute, or create derivative works based on the Software without written permission.
+
+3. Privacy & Data
+
+The Software does not collect or transmit any user data.
+
+All clipboard history and related data are stored locally on the user’s device.
+
+The Software has no internet connectivity for data transmission or synchronization.
+
+Users are solely responsible for managing and deleting stored clipboard history as needed.
+
+4. Limitations of Use
+You may not use this Software to capture or store sensitive or confidential information without consent.
+Zero Byte is not liable for any data loss, unauthorized sharing, or misuse of clipboard content caused by the user or third-party software.
+
+5. Updates & Modifications
+Zero Byte reserves the right to modify, update, or discontinue the Software at any time without prior notice. Continued use of the Software after updates constitutes acceptance of the revised terms.
+
+6. Disclaimer of Warranty
+The Software is provided “as is,” without warranties of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.
+
+7. Limitation of Liability
+In no event shall Zero Byte or its developers be liable for any damages arising out of the use or inability to use the Software, including data loss, performance issues, or indirect damages, even if advised of such possibilities.
+
+8. Termination
+This license terminates automatically if you breach any term. Upon termination, you must uninstall and delete all copies of the Software.
+
+
