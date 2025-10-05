@@ -1,8 +1,10 @@
 ﻿using ClipboardHistoryMini.Models;
 using System;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -11,6 +13,7 @@ namespace ClipboardHistoryMini.Services
     public class ClipboardMonitor : Form
     {
         private const int WM_CLIPBOARDUPDATE = 0x031D;
+        private const int MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB limit for images
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -24,6 +27,7 @@ namespace ClipboardHistoryMini.Services
 
         private bool _trackImages = true;
         private string _lastTextContent = string.Empty;
+        private byte[] _lastImageHash = null;
 
         public ClipboardMonitor()
         {
@@ -62,55 +66,27 @@ namespace ClipboardHistoryMini.Services
         {
             try
             {
-                if (!Clipboard.ContainsData(DataFormats.Text) &&
-                    !Clipboard.ContainsData(DataFormats.Rtf) &&
-                    !Clipboard.ContainsImage())
-                    return;
-
                 ClipboardItem item = null;
 
-                // Check for image
-                if (_trackImages && Clipboard.ContainsImage())
+                // Priority 1: Check for file drops (images or other files)
+                if (Clipboard.ContainsFileDropList())
                 {
-                    var img = Clipboard.GetImage();
-                    if (img != null)
-                    {
-                        item = new ClipboardItem
-                        {
-                            Type = ClipboardItemType.Image,
-                            ImageData = ImageToByteArray(img)
-                        };
-                    }
+                    item = ProcessFileDropList();
                 }
-                // Check for RTF
+                // Priority 2: Check for image
+                //else if (_trackImages && Clipboard.ContainsImage())
+                //{
+                //    item = ProcessImage();
+                //}
+                // Priority 3: Check for RTF
                 else if (Clipboard.ContainsData(DataFormats.Rtf))
                 {
-                    var rtf = Clipboard.GetData(DataFormats.Rtf) as string;
-                    var text = Clipboard.GetText();
-
-                    if (!string.IsNullOrEmpty(text) && text != _lastTextContent)
-                    {
-                        item = new ClipboardItem
-                        {
-                            Type = ClipboardItemType.RichText,
-                            Content = text
-                        };
-                        _lastTextContent = text;
-                    }
+                    item = ProcessRichText();
                 }
-                // Check for plain text
+                // Priority 4: Check for plain text
                 else if (Clipboard.ContainsText())
                 {
-                    var text = Clipboard.GetText();
-                    if (!string.IsNullOrEmpty(text) && text != _lastTextContent)
-                    {
-                        item = new ClipboardItem
-                        {
-                            Type = ClipboardItemType.Text,
-                            Content = text
-                        };
-                        _lastTextContent = text;
-                    }
+                    item = ProcessPlainText();
                 }
 
                 if (item != null)
@@ -123,16 +99,101 @@ namespace ClipboardHistoryMini.Services
                 System.Diagnostics.Debug.WriteLine($"Clipboard monitoring error: {ex.Message}");
             }
         }
-
-        private byte[] ImageToByteArray(Image img)
+        private ClipboardItem ProcessFileDropList()
         {
-            using (var ms = new MemoryStream())
+            try
             {
-                img.Save(ms, ImageFormat.Png);
-                return ms.ToArray();
+                var files = Clipboard.GetFileDropList();
+                if (files == null || files.Count == 0)
+                    return null;
+
+                // Get the first file
+                string filePath = files[0];
+
+                if (!File.Exists(filePath))
+                    return null;
+
+                var fileInfo = new FileInfo(filePath);
+
+                // Determine type based on file extension
+                ClipboardItemType type;
+                string ext = fileInfo.Extension.ToLower();
+                if (ext == ".txt" || ext == ".log" || ext == ".csv")
+                {
+                    type = ClipboardItemType.Text;
+                }
+                else if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp" || ext == ".gif")
+                {
+                    type = ClipboardItemType.Image;
+                }
+                else
+                {
+                    type = ClipboardItemType.Text; // Default to Text type for file paths
+                }
+
+                _lastTextContent = filePath;
+
+                return new ClipboardItem
+                {
+                    Type = type,
+                    Content = filePath // Always store the full file path
+                };
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error processing file drop: {ex.Message}");
+            }
+
+            return null;
         }
 
+        private ClipboardItem ProcessRichText()
+        {
+            try
+            {
+                var text = Clipboard.GetText();
+
+                if (!string.IsNullOrEmpty(text) && text != _lastTextContent)
+                {
+                    _lastTextContent = text;
+                    return new ClipboardItem
+                    {
+                        Type = ClipboardItemType.RichText,
+                        Content = text
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error processing rich text: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        private ClipboardItem ProcessPlainText()
+        {
+            try
+            {
+                var text = Clipboard.GetText();
+
+                if (!string.IsNullOrEmpty(text) && text != _lastTextContent)
+                {
+                    _lastTextContent = text;
+                    return new ClipboardItem
+                    {
+                        Type = ClipboardItemType.Text,
+                        Content = text
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error processing plain text: {ex.Message}");
+            }
+
+            return null;
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

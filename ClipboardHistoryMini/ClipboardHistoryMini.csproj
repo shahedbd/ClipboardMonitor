@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>Resources\icon1.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\favicon.ico</ApplicationIcon>
     <AssemblyName>ClipboardHistoryMini</AssemblyName>
     <RootNamespace>ClipboardHistoryMini</RootNamespace>
     <Nullable>enable</Nullable>
@@ -15,7 +15,15 @@
     <PublishTrimmed>false</PublishTrimmed>
     <Title>Clipboard History Mini</Title>
     <PackageIcon>main1.png</PackageIcon>
+    <Description>Clipboard History Mini</Description>
+    <Copyright>shahedbddev@gmail.com</Copyright>
+    <PackageProjectUrl>https://zerobytebd.com/</PackageProjectUrl>
+    <PackageReleaseNotes>Clipboard History Mini 1.0</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\favicon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
@@ -24,6 +32,10 @@
   <ItemGroup>
     <None Update="Resources\favicon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\main1.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

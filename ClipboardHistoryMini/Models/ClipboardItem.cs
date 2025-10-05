@@ -32,8 +32,8 @@ namespace ClipboardHistoryMini.Models
             if (!string.IsNullOrEmpty(Preview))
                 return Preview;
 
-            if (Type == ClipboardItemType.Image)
-                return "[Image]";
+            //if (Type == ClipboardItemType.Image)
+            //    return "[Image]";
 
             if (string.IsNullOrEmpty(Content))
                 return "[Empty]";

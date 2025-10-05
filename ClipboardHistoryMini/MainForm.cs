@@ -1,6 +1,7 @@
 ﻿using ClipboardHistoryMini.Models;
 using ClipboardHistoryMini.Services;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,9 @@ namespace ClipboardHistoryMini
             LoadHistory();
 
             // Add sample data
-            //LoadSampleData();
+            //TestData.LoadSampleData(_historyList);
+            // Update the count label
+            //UpdateItemCount();
         }
 
 
@@ -102,6 +105,7 @@ namespace ClipboardHistoryMini
 
             // Setup ListView columns
             _historyList.Columns.Add("Type", 60);
+            _historyList.Columns.Add("File Name", 150); // NEW COLUMN
             _historyList.Columns.Add("Content", 300);
             _historyList.Columns.Add("Time", 120);
             _historyList.Columns.Add("Pin", 40);
@@ -114,7 +118,14 @@ namespace ClipboardHistoryMini
             _itemContextMenu = new ContextMenuStrip();
             _itemContextMenu.Items.Add("Copy", null, ContextMenu_Copy);
             _itemContextMenu.Items.Add("Pin/Unpin", null, ContextMenu_TogglePin);
+
+            _itemContextMenu.Items.Add("-"); // Separator
+            _itemContextMenu.Items.Add("Open Location", null, ContextMenu_OpenLocation); // NEW
+
             _itemContextMenu.Items.Add("Delete", null, ContextMenu_Delete);
+
+            _itemContextMenu.Opening += _itemContextMenu_Opening;
+
             _historyList.ContextMenuStrip = _itemContextMenu;
 
             // Event handlers
@@ -184,26 +195,6 @@ namespace ClipboardHistoryMini
 
         private void SetupBottomToolbar(Panel bottomToolbar)
         {
-            //var btnImport = new Button
-            //{
-            //    Text = "Import",
-            //    Width = 70,
-            //    Height = 28,
-            //    Location = new Point(5, 6),
-            //    FlatStyle = FlatStyle.System
-            //};
-            //bottomToolbar.Controls.Add(btnImport);
-
-            //var btnExport = new Button
-            //{
-            //    Text = "Export",
-            //    Width = 70,
-            //    Height = 28,
-            //    Location = new Point(85, 6),
-            //    FlatStyle = FlatStyle.System
-            //};
-            //bottomToolbar.Controls.Add(btnExport);
-
             var btnStats = new Button
             {
                 Text = "Stats",
@@ -313,6 +304,7 @@ namespace ClipboardHistoryMini
                 var lvi = new ListViewItem(new[]
                 {
                     GetTypeIcon(item.Type),
+                    GetFileName(item), // NEW: Extract file name
                     item.GetPreview(80),
                     item.CopiedAt.ToString("MM/dd HH:mm"),
                     item.IsPinned ? "📌" : ""
@@ -349,7 +341,8 @@ namespace ClipboardHistoryMini
                 var lvi = new ListViewItem(new[]
                 {
                     GetTypeIcon(item.Type),
-                    item.GetPreview(80),
+                    GetFileName(item), // NEW: Extract file name
+                    item.GetPreview(60), // Reduced preview length
                     item.CopiedAt.ToString("MM/dd HH:mm"),
                     item.IsPinned ? "📌" : ""
                 })
@@ -363,6 +356,7 @@ namespace ClipboardHistoryMini
             UpdateItemCount();
             _isSearching = false;
         }
+
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
         {
@@ -404,7 +398,7 @@ namespace ClipboardHistoryMini
                 {
                     if (item.Type == ClipboardItemType.Image && item.ImageData != null)
                     {
-                        using (var ms = new System.IO.MemoryStream(item.ImageData))
+                        using (var ms = new MemoryStream(item.ImageData))
                         {
                             var img = Image.FromStream(ms);
                             Clipboard.SetImage(img);
@@ -414,10 +408,23 @@ namespace ClipboardHistoryMini
                     {
                         Clipboard.SetText(item.Content);
                     }
-
-                    _trayIcon.ShowBalloonTip(1000, "Copied", "Item copied to clipboard", ToolTipIcon.Info);
+                    //UpdateTrayIconForBalloon();
+                    _trayIcon.ShowBalloonTip(1000, "Clipboard History Mini", "Item copied to clipboard", ToolTipIcon.Info);
                 }
             }
+        }
+        private void UpdateTrayIconForBalloon()
+        {
+            // Set custom icon for balloon window
+            var iconPath = Path.Combine(Application.StartupPath, "Resources", "favicon.ico");
+            if (File.Exists(iconPath))
+            {
+                _trayIcon.Icon?.Dispose(); // Dispose old icon
+                _trayIcon.Icon = new Icon(iconPath);
+            }
+
+            // Set custom title for balloon window
+            _trayIcon.Text = "Clipboard History Mini";
         }
 
         private void DeleteSelectedItem()
@@ -543,55 +550,97 @@ namespace ClipboardHistoryMini
                 (mostRecent != null ? $"Most recent: {mostRecent.CopiedAt:MM/dd HH:mm}" : "");
 
             MessageBox.Show(stats, "Clipboard Statistics", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+        }       
 
-        private void LoadSampleData()
+        private void ContextMenu_OpenLocation(object sender, EventArgs e)
         {
-            // Clear existing items
-            _historyList.Items.Clear();
-
-            // Add some sample clipboard items
-            var items = new[]
+            if (_historyList.SelectedItems.Count > 0)
             {
-                new { Type = "Text", Content = "Hello, this is a sample text from clipboard", Time = DateTime.Now.AddMinutes(-5), Pinned = false },
-                new { Type = "Text", Content = "https://github.com/user/repository", Time = DateTime.Now.AddMinutes(-10), Pinned = true },
-                new { Type = "Image", Content = "Screenshot_2024.png (1920x1080)", Time = DateTime.Now.AddMinutes(-15), Pinned = false },
-                new { Type = "Text", Content = "public class ClipboardManager { }", Time = DateTime.Now.AddMinutes(-20), Pinned = false },
-                new { Type = "Text", Content = "Meeting notes: Discuss project timeline...", Time = DateTime.Now.AddMinutes(-25), Pinned = true },
-                new { Type = "Image", Content = "diagram.jpg (800x600)", Time = DateTime.Now.AddMinutes(-30), Pinned = false }
-            };
-
-            foreach (var item in items)
-            {
-                var listItem = new ListViewItem(item.Type);
-                listItem.SubItems.Add(item.Content.Length > 50 ? item.Content.Substring(0, 47) + "..." : item.Content);
-                listItem.SubItems.Add(item.Time.ToString("HH:mm:ss"));
-                listItem.SubItems.Add(item.Pinned ? "📌" : "");
-
-                // Set different icons/colors for different types
-                if (item.Type == "Image")
+                var item = _historyList.SelectedItems[0].Tag as ClipboardItem;
+                if (item != null && !string.IsNullOrEmpty(item.Content))
                 {
-                    listItem.BackColor = Color.FromArgb(240, 248, 255); // Light blue for images
-                }
-                else if (item.Pinned)
-                {
-                    listItem.BackColor = Color.FromArgb(255, 255, 240); // Light yellow for pinned items
-                }
+                    try
+                    {
+                        string path = item.Content.Trim();
 
-                listItem.Tag = item; // Store the original data
-                _historyList.Items.Add(listItem);
+                        // Check if it's a valid file or directory path
+                        if (File.Exists(path))
+                        {
+                            // Open file location and select the file
+                            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+                        }
+                        else if (Directory.Exists(path))
+                        {
+                            // Open the directory
+                            System.Diagnostics.Process.Start("explorer.exe", $"\"{path}\"");
+                        }
+                        else
+                        {
+                            // Try to extract directory from path if it looks like a file path
+                            string directory = Path.GetDirectoryName(path);
+                            if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+                            {
+                                System.Diagnostics.Process.Start("explorer.exe", $"\"{directory}\"");
+                            }
+                            else
+                            {
+                                MessageBox.Show("Invalid or non-existent path.", "Open Location",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error opening location: {ex.Message}", "Open Location",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
-
-            // Update the count label
-            UpdateItemCount();
         }
-
-        private void UpdateItemCountOLD()
+        // Add this method to MainForm.cs
+        private void _itemContextMenu_Opening(object sender, CancelEventArgs e)
         {
-            var countLabel = this.Controls.Find("lblCount", true).FirstOrDefault() as Label;
-            if (countLabel != null)
+            if (_historyList.SelectedItems.Count > 0)
             {
-                countLabel.Text = $"{_historyList.Items.Count} items";
+                var item = _historyList.SelectedItems[0].Tag as ClipboardItem;
+                var openLocationItem = _itemContextMenu.Items.Cast<ToolStripItem>()
+                    .FirstOrDefault(i => i.Text == "Open Location");
+
+                if (openLocationItem != null && item != null)
+                {
+                    // Show "Open Location" only for items that look like file paths
+                    string content = item.Content?.Trim() ?? "";
+                    bool isPath = File.Exists(content) || Directory.Exists(content) ||
+                                 (!string.IsNullOrEmpty(Path.GetDirectoryName(content)) &&
+                                  Directory.Exists(Path.GetDirectoryName(content)));
+
+                    openLocationItem.Visible = isPath;
+                }
+            }
+        }
+        private string GetFileName(ClipboardItem item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.Content))
+                return "";
+
+            try
+            {
+                string content = item.Content.Trim();
+
+                // Check if it looks like a file path
+                if (File.Exists(content) ||
+                    (!string.IsNullOrEmpty(Path.GetDirectoryName(content)) &&
+                     Directory.Exists(Path.GetDirectoryName(content))))
+                {
+                    return Path.GetFileName(content);
+                }
+
+                // For other content types, return empty or a placeholder
+                return "Only Text";
+            }
+            catch
+            {
+                return "";
             }
         }
 
