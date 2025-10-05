@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\icon1.ico</ApplicationIcon>
     <AssemblyName>ClipboardHistoryMini</AssemblyName>
     <RootNamespace>ClipboardHistoryMini</RootNamespace>
     <Nullable>enable</Nullable>
@@ -13,10 +13,18 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
+    <Title>Clipboard History Mini</Title>
+    <PackageIcon>main1.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ClipboardHistoryMini.Models;
+using ClipboardHistoryMini.Services;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ClipboardHistoryMini.Models;
-using ClipboardHistoryMini.Services;
 
 namespace ClipboardHistoryMini
 {
@@ -28,17 +29,9 @@ namespace ClipboardHistoryMini
             LoadHistory();
 
             // Add sample data
-            LoadSampleData();
+            //LoadSampleData();
         }
 
-        //private void InitializeComponent()
-        //{
-        //    this.Text = "Clipboard History Mini";
-        //    this.Size = new Size(600, 500);
-        //    this.MinimumSize = new Size(400, 300);
-        //    this.StartPosition = FormStartPosition.CenterScreen;
-        //    this.Icon = SystemIcons.Application;
-        //}
 
         private void InitializeServices()
         {
@@ -191,32 +184,32 @@ namespace ClipboardHistoryMini
 
         private void SetupBottomToolbar(Panel bottomToolbar)
         {
-            var btnImport = new Button
-            {
-                Text = "Import",
-                Width = 70,
-                Height = 28,
-                Location = new Point(5, 6),
-                FlatStyle = FlatStyle.System
-            };
-            bottomToolbar.Controls.Add(btnImport);
+            //var btnImport = new Button
+            //{
+            //    Text = "Import",
+            //    Width = 70,
+            //    Height = 28,
+            //    Location = new Point(5, 6),
+            //    FlatStyle = FlatStyle.System
+            //};
+            //bottomToolbar.Controls.Add(btnImport);
 
-            var btnExport = new Button
-            {
-                Text = "Export",
-                Width = 70,
-                Height = 28,
-                Location = new Point(85, 6),
-                FlatStyle = FlatStyle.System
-            };
-            bottomToolbar.Controls.Add(btnExport);
+            //var btnExport = new Button
+            //{
+            //    Text = "Export",
+            //    Width = 70,
+            //    Height = 28,
+            //    Location = new Point(85, 6),
+            //    FlatStyle = FlatStyle.System
+            //};
+            //bottomToolbar.Controls.Add(btnExport);
 
             var btnStats = new Button
             {
                 Text = "Stats",
                 Width = 70,
                 Height = 28,
-                Location = new Point(165, 6),
+                Location = new Point(5, 6),
                 FlatStyle = FlatStyle.System,
             };
             bottomToolbar.Controls.Add(btnStats);
@@ -227,7 +220,7 @@ namespace ClipboardHistoryMini
                 Text = "Settings",
                 Width = 80,
                 Height = 28,
-                Location = new Point(245, 6),
+                Location = new Point(85, 6),
                 FlatStyle = FlatStyle.System
             };
             btnSettings.Click += BtnSettings_Click;
@@ -271,9 +264,11 @@ namespace ClipboardHistoryMini
 
         private void SetupTrayIcon()
         {
+            var iconPath = Path.Combine(Application.StartupPath, "Resources", "favicon.ico");
             _trayIcon = new NotifyIcon
             {
-                Icon = SystemIcons.Application,
+                //Icon = SystemIcons.Application,
+                Icon = new Icon(iconPath),
                 Text = "Clipboard History Mini",
                 Visible = true
             };
