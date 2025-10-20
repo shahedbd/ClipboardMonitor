@@ -29,10 +29,17 @@ namespace ClipboardHistoryMini
             SetupTrayIcon();
             LoadHistory();
 
+            //await StartupService.ExecuteStartupTaskAsync();
+
             // Add sample data
             //TestData.LoadSampleData(_historyList);
             // Update the count label
             //UpdateItemCount();
+        }
+
+        private async void MainForm_Load(object sender, EventArgs e)
+        {
+            //await AppStartupService.ExecuteAppStartupTaskAsync();
         }
 
 
@@ -185,7 +192,8 @@ namespace ClipboardHistoryMini
             _searchBox.TextChanged += SearchBox_TextChanged;
             topToolbar.Controls.Add(_searchBox);
 
-            topToolbar.Resize += (s, e) => {
+            topToolbar.Resize += (s, e) =>
+            {
                 if (_searchBox != null)
                 {
                     _searchBox.Width = Math.Max(150, topToolbar.Width - 240);
@@ -240,7 +248,8 @@ namespace ClipboardHistoryMini
             btnClear.Click += BtnClear_Click;
             bottomToolbar.Controls.Add(btnClear);
 
-            bottomToolbar.Resize += (s, e) => {
+            bottomToolbar.Resize += (s, e) =>
+            {
                 if (lblCount != null && btnClear != null)
                 {
                     btnClear.Location = new Point(bottomToolbar.Width - 110, 6);
@@ -265,6 +274,7 @@ namespace ClipboardHistoryMini
             trayMenu.Items.Add("Show", null, (s, e) => ShowMainWindow());
             trayMenu.Items.Add("Settings", null, BtnSettings_Click);
             trayMenu.Items.Add("-");
+            trayMenu.Items.Add("About", null, BtnAbout_Click);
             trayMenu.Items.Add("Exit", null, (s, e) => ExitApplication());
 
             _trayIcon.ContextMenuStrip = trayMenu;
@@ -499,6 +509,11 @@ namespace ClipboardHistoryMini
             this.WindowState = FormWindowState.Normal;
             this.Activate();
         }
+        private void BtnAbout_Click(object sender, EventArgs e)
+        {
+            frmAbout _frmAbout=new();
+            _frmAbout.ShowDialog();
+        }
 
         private void ExitApplication()
         {
@@ -547,7 +562,7 @@ namespace ClipboardHistoryMini
                 (mostRecent != null ? $"Most recent: {mostRecent.CopiedAt:MM/dd HH:mm}" : "");
 
             MessageBox.Show(stats, "Clipboard Statistics", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }       
+        }
 
         private void ContextMenu_OpenLocation(object sender, EventArgs e)
         {
@@ -640,6 +655,5 @@ namespace ClipboardHistoryMini
                 return "";
             }
         }
-
     }
 }

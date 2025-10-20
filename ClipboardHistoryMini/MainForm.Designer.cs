@@ -46,6 +46,7 @@ namespace ClipboardHistoryMini
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Clipboard History Mini";
+            Load += MainForm_Load;
             ResumeLayout(false);
         }
 

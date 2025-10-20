@@ -1,6 +1,8 @@
 ref: https://chatgpt.com/c/68dc3a90-250c-832e-8891-5c9a5ec7b60c
-App Name: Clipboard History Mini
 
+
+
+App Name: Clipboard History Mini
 
 🟡 Short description
 
