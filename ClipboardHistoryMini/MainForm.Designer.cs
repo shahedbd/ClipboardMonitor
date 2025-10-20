@@ -40,7 +40,7 @@ namespace ClipboardHistoryMini
             // 
             // MainForm
             // 
-            ClientSize = new Size(584, 461);
+            ClientSize = new Size(700, 500);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MinimumSize = new Size(400, 300);
             Name = "MainForm";

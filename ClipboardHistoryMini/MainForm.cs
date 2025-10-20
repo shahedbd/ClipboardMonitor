@@ -39,7 +39,7 @@ namespace ClipboardHistoryMini
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            //await AppStartupService.ExecuteAppStartupTaskAsync();
+            await AppStartupService.ExecuteAppStartupTaskAsync();
         }
 
 

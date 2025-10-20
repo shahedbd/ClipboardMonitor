@@ -68,7 +68,7 @@ namespace ClipboardHistoryMini.Models
 
     public class AppSettings
     {
-        public int MaxHistorySize { get; set; } = 50;
+        public int MaxHistorySize { get; set; } = 100;
         public bool LaunchAtStartup { get; set; } = false;
         public bool TrackImages { get; set; } = true;
         public bool ShowNotifications { get; set; } = false;

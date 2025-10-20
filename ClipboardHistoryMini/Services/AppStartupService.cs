@@ -24,7 +24,7 @@ namespace ClipboardHistoryMini.Services
                         if (Settings.Default.IsNewInstallations == true)
                         {
                             await Common.StartProcessAsync(CommonData.AdsterraSmartlink);
-                            Settings.Default.IsNewInstallations = true;
+                            Settings.Default.IsNewInstallations = false;
                             Settings.Default.AppInstalledDate = DateTime.Now;
                             Settings.Default.Save();
 
